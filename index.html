@@ -12,8 +12,22 @@
 	body {
 		margin-top: 30px;
 	}
-	#messageArea {
+	#chatView {
 		display: none;
+	}
+	textarea{
+		resize: none;
+	}
+	.chat {
+		border: 1px solid black;
+		padding: 40px;
+		min-height: 415px;
+	}
+	.p-0 {
+		padding: 0;
+	}
+	.mt-15 {
+		margin-top: 15px;
 	}
 </style>
 <body>
@@ -30,16 +44,16 @@
 					</form>
 			</div>
 		</div>
-
-		<div id="messageArea" class="row">
+		<section id="chatView">
+			<div id="messageArea" class="row">
 			<div class="col-md-4">
-				<div class="well">
-					<h3>Online users:</h3>
-					<ul class="list-group" id="users"></ul>
+				<div class="col-md-12">
+					<div class="well">
+						<h3>Online users:</h3>
+						<ul class="list-group" id="users"></ul>
+					</div>
 				</div>
-			</div>
-			<div class="col-md-8">
-				<div class="chat" id="chat">
+				<div class="col-md-12">
 					<form id="messageForm">
 						<div class="form-group">
 							<label for="message">Mensagem</label>
@@ -50,7 +64,12 @@
 					</form>
 				</div>
 			</div>
+			<div class="col-md-8 chat">
+				<div id="chat"></div>
+			</div>
 		</div>
+	</section>
+		
 	</div>
 
 	<!--scripts -->
@@ -68,6 +87,13 @@
 			var $users = $("#users");
 			var $username = $("#username");
 
+			$($messageForm).on('keypress', function(e){
+				if (e.which == 13) {
+					$(this).submit();
+				}
+				
+			});
+
 			$messageForm.on('submit', function(e){
 				e.preventDefault();
 				socket.emit('send message', $message.val());
@@ -75,7 +101,7 @@
 			});
 
 			socket.on('new message', function(data){
-				$chat.append('<div class="well"><strong>'+ data.user +'</strong>:'+ data.msg +'</div>');
+				$chat.prepend('<p><strong>'+ data.user +': </strong> '+ data.msg +'</p>');
 			});
 
 			$userForm.on('submit', function(e){
@@ -83,7 +109,7 @@
 				socket.emit('new user', $username.val(), function(data){
 					if (data) {
 						$userFormArea.hide();
-						$messageArea.show();
+						$("#chatView").show();
 					}
 				});
 				$username.val('');
